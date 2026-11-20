@@ -57,7 +57,6 @@
       margin: 0;
       font-size: 22px;
       font-weight: 700;
-      letter-spacing: -0.2px;
     }
 
     .topbar p {
@@ -73,7 +72,7 @@
     }
 
     .fleet-pill {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.22);
       backdrop-filter: blur(6px);
       border: 1px solid rgba(255, 255, 255, 0.35);
       padding: 6px 12px;
@@ -180,7 +179,6 @@
       font-size: 14.5px;
       background-color: #ffffff;
       color: var(--text-dark);
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     input:focus, select:focus, textarea:focus {
@@ -217,11 +215,6 @@
       cursor: pointer;
       width: 100%;
       box-shadow: 0 6px 16px rgba(2, 132, 199, 0.24);
-      transition: transform 0.15s ease, opacity 0.2s ease;
-    }
-
-    button.btn-primary:hover:not(:disabled) {
-      transform: translateY(-1px);
     }
 
     button.btn-primary:disabled {
@@ -240,12 +233,31 @@
       color: #ffffff;
     }
 
-    .btn-edit {
-      background: #0284c7;
+    .btn-edit { background: #0284c7; }
+    .btn-delete { background: #e11d48; }
+
+    .btn-search {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #ffffff;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    .btn-delete {
-      background: #e11d48;
+    .btn-all {
+      background: #f1f5f9;
+      color: var(--text-dark);
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
     }
 
     .btn-add {
@@ -293,25 +305,31 @@
       margin-bottom: 20px;
     }
 
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+    .filter-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
       margin-bottom: 16px;
     }
 
-    .filter-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      flex: 1;
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
-    .filter-row input, .filter-row select {
+    .filter-grid input, .filter-grid select {
       margin-bottom: 0;
-      max-width: 260px;
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .table-wrap {
@@ -355,15 +373,8 @@
       font-weight: 600;
     }
 
-    .badge-ok {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .badge-warn {
-      background: #ffedd5;
-      color: #c2410c;
-    }
+    .badge-ok { background: #dcfce7; color: #15803d; }
+    .badge-warn { background: #ffedd5; color: #c2410c; }
 
     .summary-grid {
       display: grid;
@@ -381,17 +392,8 @@
       border-top: 4px solid var(--accent);
     }
 
-    .card-title {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .card-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--primary-dark);
-    }
+    .card-title { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    .card-value { font-size: 28px; font-weight: 700; color: var(--primary-dark); }
 
     .charts-grid {
       display: grid;
@@ -437,7 +439,6 @@
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
     }
 
-    /* โมดอลเพิ่ม / แก้ไขข้อมูลและปฏิทิน */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -449,9 +450,7 @@
       padding: 16px;
     }
 
-    .modal-backdrop.open {
-      display: flex;
-    }
+    .modal-backdrop.open { display: flex; }
 
     .modal-box {
       background: #ffffff;
@@ -471,11 +470,7 @@
       margin-bottom: 16px;
     }
 
-    .modal-header h3 {
-      margin: 0;
-      color: var(--primary-dark);
-      font-size: 18px;
-    }
+    .modal-header h3 { margin: 0; color: var(--primary-dark); font-size: 18px; }
 
     .btn-close {
       background: #f1f5f9;
@@ -515,12 +510,8 @@
     }
 
     @media (max-width: 768px) {
-      .form-grid, .charts-grid {
-        grid-template-columns: 1fr;
-      }
-      .chart-wrapper {
-        height: 250px;
-      }
+      .form-grid, .charts-grid { grid-template-columns: 1fr; }
+      .chart-wrapper { height: 250px; }
     }
   </style>
 </head>
@@ -534,10 +525,10 @@
         <p>บริหารจัดการการจอง ปฏิทินนัดหมาย และสถิติการใช้บริการ</p>
       </div>
       <div class="fleet-pills">
-        <span class="fleet-pill">8 ห้อง แอร์ (1)</span>
-        <span class="fleet-pill">8 ห้อง พัดลม (1)</span>
-        <span class="fleet-pill">6 ห้อง แอร์ (1)</span>
-        <span class="fleet-pill">4 ห้อง พัดลม (1)</span>
+        <span class="fleet-pill">8 ห้อง แอร์ • ฿4,500/วัน</span>
+        <span class="fleet-pill">8 ห้อง พัดลม • ฿2,500/วัน</span>
+        <span class="fleet-pill">6 ห้อง แอร์ • ฿3,500/วัน</span>
+        <span class="fleet-pill">4 ห้อง พัดลม • ฿2,500/วัน</span>
       </div>
     </div>
   </div>
@@ -598,6 +589,7 @@
         </div>
 
         <div class="total-cost">
+          <div id="totalRateInfo">อัตราค่าบริการ: -</div>
           <div id="totalDays">จำนวนวัน: 0 วัน</div>
           <div id="totalPrice">ราคาประเมิน: ฿0</div>
         </div>
@@ -608,26 +600,59 @@
     </div>
   </div>
 
-  <!-- แท็บ 2: จัดการข้อมูล แก้ไข เพิ่ม/ลบในปฏิทิน และดูปฏิทิน -->
+  <!-- แท็บ 2: จัดการข้อมูล (ค้นหาก่อนค่อยแสดงผล) -->
   <div id="manage" class="tab">
     <div class="wide-container">
       <div class="panel-card">
-        <div class="toolbar">
-          <div class="filter-row">
-            <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อผู้จอง สถานที่ หรือรถ...">
-            <select id="filterCar">
-              <option value="">รถทั้งหมด (4 คัน)</option>
-            </select>
-          </div>
+        <div class="toolbar" style="margin-bottom:10px;">
+          <h3 style="margin:0; color:var(--primary-dark);">🔎 ค้นหาและจัดการรายการจอง</h3>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" class="btn-add" id="openAddEventBtn">➕ เพิ่มรายการในปฏิทิน</button>
-            <button type="button" class="btn-refresh" id="reloadBookingsBtn">🔄 โหลดข้อมูลใหม่</button>
+            <button type="button" class="btn-refresh" id="reloadBookingsBtn">🔄 ซิงค์ข้อมูลล่าสุด</button>
           </div>
         </div>
 
-        <div id="manage-msg" class="status-info" style="margin-bottom:10px; text-align:left;"></div>
+        <div class="filter-box">
+          <div class="filter-grid">
+            <div>
+              <label for="filterCar">ชนิดรถ:</label>
+              <select id="filterCar">
+                <option value="">-- เลือกชนิดรถ --</option>
+              </select>
+            </div>
+            <div>
+              <label for="filterPaid">สถานะการชำระเงิน:</label>
+              <select id="filterPaid">
+                <option value="">-- ทั้งหมด --</option>
+                <option value="paid">ชำระเงินแล้ว</option>
+                <option value="unpaid">รอชำระเงิน</option>
+              </select>
+            </div>
+            <div>
+              <label for="filterServiced">สถานะการให้บริการ:</label>
+              <select id="filterServiced">
+                <option value="">-- ทั้งหมด --</option>
+                <option value="serviced">ให้บริการแล้ว</option>
+                <option value="pending">รอดำเนินการ</option>
+              </select>
+            </div>
+            <div>
+              <label for="searchInput">คำค้นหา (ผู้จอง / สถานที่):</label>
+              <input type="text" id="searchInput" placeholder="พิมพ์ชื่อผู้จองหรือสถานที่...">
+            </div>
+          </div>
 
-        <div class="table-wrap">
+          <div class="filter-actions">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="btn-search" id="runSearchBtn">🔍 ค้นหาข้อมูล</button>
+              <button type="button" class="btn-all" id="showAllBtn">แสดงทั้งหมด</button>
+              <button type="button" class="btn-all" id="clearFilterBtn">ล้างตัวกรอง</button>
+            </div>
+            <div id="manage-msg" class="status-info" style="font-size:13.5px;">กรุณาเลือกเงื่อนไขแล้วกด "ค้นหาข้อมูล" เพื่อแสดงรายการ</div>
+          </div>
+        </div>
+
+        <div class="table-wrap" id="resultsWrap" style="display:none;">
           <table>
             <thead>
               <tr>
@@ -642,9 +667,7 @@
                 <th>จัดการ</th>
               </tr>
             </thead>
-            <tbody id="bookingsTableBody">
-              <tr><td colspan="9" style="text-align:center; padding:24px;">กำลังโหลดรายการจอง...</td></tr>
-            </tbody>
+            <tbody id="bookingsTableBody"></tbody>
           </table>
         </div>
       </div>
@@ -707,7 +730,7 @@
     </div>
   </div>
 
-  <!-- โมดอลสำหรับ เพิ่มรายการปฏิทิน หรือ แก้ไขข้อมูล -->
+  <!-- โมดอล เพิ่ม / แก้ไขข้อมูล -->
   <div class="modal-backdrop" id="recordModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -768,15 +791,17 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwepsD3Ab19pLMaFNeifc4XHqiqTFfW5GzSiQS_JTEXG42PVgrkmdwj_Y7a1lBN9IGT/exec";
-    const DAILY_RATE = 2500;
-    const FALLBACK_CARS = [
-      "รถสุขาเคลื่อนที่ 8 ห้อง (แอร์)",
-      "รถสุขาเคลื่อนที่ 8 ห้อง (พัดลม)",
-      "รถสุขาเคลื่อนที่ 6 ห้อง (แอร์)",
-      "รถสุขาเคลื่อนที่ 4 ห้อง (พัดลม)"
-    ];
+    const CAR_RATES = {
+      "รถสุขาเคลื่อนที่ 8 ห้อง (แอร์)": 4500,
+      "รถสุขาเคลื่อนที่ 8 ห้อง (พัดลม)": 2500,
+      "รถสุขาเคลื่อนที่ 6 ห้อง (แอร์)": 3500,
+      "รถสุขาเคลื่อนที่ 4 ห้อง (พัดลม)": 2500
+    };
+    const FALLBACK_CARS = Object.keys(CAR_RATES);
 
+    let activeRates = { ...CAR_RATES };
     let bookingsCache = [];
+    let hasSearchedManage = false;
     let dashboardNeedsRefresh = true;
     let bookingsNeedsRefresh = true;
     let barChartInstance = null;
@@ -784,6 +809,16 @@
 
     if (window.ChartDataLabels) {
       Chart.register(ChartDataLabels);
+    }
+
+    function getRateForCar(carName) {
+      const key = String(carName || "").trim();
+      if (activeRates[key] !== undefined) return Number(activeRates[key]);
+      if (CAR_RATES[key] !== undefined) return Number(CAR_RATES[key]);
+      const compact = key.replace(/\s+/g, "");
+      if (compact.indexOf("8ห้อง") !== -1 && compact.indexOf("แอร์") !== -1) return 4500;
+      if (compact.indexOf("6ห้อง") !== -1) return 3500;
+      return 2500;
     }
 
     function activateTab(tabName) {
@@ -800,7 +835,7 @@
           frame.src = frame.dataset.src;
         }
         if (bookingsNeedsRefresh) {
-          loadBookings();
+          fetchBookingsSilently();
         }
       } else if (tabName === 'stats') {
         if (dashboardNeedsRefresh) {
@@ -840,13 +875,14 @@
       const modalSel = document.getElementById('mCarId');
 
       mainSel.innerHTML = '<option value="">-- กรุณาเลือกรถ --</option>';
-      filterSel.innerHTML = '<option value="">รถทั้งหมด (4 คัน)</option>';
+      filterSel.innerHTML = '<option value="">-- เลือกชนิดรถ --</option>';
       modalSel.innerHTML = '';
 
       list.forEach(c => {
+        const rate = getRateForCar(c);
         const opt1 = document.createElement('option');
         opt1.value = c;
-        opt1.textContent = c;
+        opt1.textContent = `${c} (฿${rate.toLocaleString('th-TH')}/วัน)`;
         mainSel.appendChild(opt1);
 
         const opt2 = document.createElement('option');
@@ -866,37 +902,58 @@
       try {
         const res = await fetch(`${API_URL}?action=getCarTypes`);
         const json = await res.json();
+        if (json.rates && typeof json.rates === 'object') {
+          activeRates = { ...CAR_RATES, ...json.rates };
+        }
         if (json.status === 'success' && Array.isArray(json.data) && json.data.length) {
           populateCarSelects(json.data);
         }
-      } catch (_) {
-        // ใช้รายการสำรอง 4 คันที่กำหนดไว้
-      }
+      } catch (_) {}
     }
 
     function resetCostSummary() {
+      const carVal = document.getElementById('carId').value;
+      if (carVal) {
+        document.getElementById('totalRateInfo').textContent = `อัตราค่าบริการ: ฿${getRateForCar(carVal).toLocaleString('th-TH')} / วัน`;
+      } else {
+        document.getElementById('totalRateInfo').textContent = 'อัตราค่าบริการ: -';
+      }
       document.getElementById('totalDays').textContent = 'จำนวนวัน: 0 วัน';
       document.getElementById('totalPrice').textContent = 'ราคาประเมิน: ฿0';
     }
 
     function calculateDaysAndPrice() {
+      const carVal = document.getElementById('carId').value;
       const start = parseLocalDate(document.getElementById('startDate').value);
       const end = parseLocalDate(document.getElementById('endDate').value);
+
+      if (carVal) {
+        document.getElementById('totalRateInfo').textContent = `อัตราค่าบริการ: ฿${getRateForCar(carVal).toLocaleString('th-TH')} / วัน`;
+      } else {
+        document.getElementById('totalRateInfo').textContent = 'อัตราค่าบริการ: -';
+      }
+
       if (!start || !end) {
-        resetCostSummary();
+        document.getElementById('totalDays').textContent = 'จำนวนวัน: 0 วัน';
+        document.getElementById('totalPrice').textContent = 'ราคาประเมิน: ฿0';
         return;
       }
+
       if (end < start) {
         document.getElementById('totalDays').textContent = 'จำนวนวัน: วันที่สิ้นสุดต้องไม่น้อยกว่าวันเริ่มต้น';
         document.getElementById('totalPrice').textContent = 'ราคาประเมิน: ฿0';
         return;
       }
+
       const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
-      const price = days * DAILY_RATE;
+      const rate = getRateForCar(carVal);
+      const price = days * rate;
+
       document.getElementById('totalDays').textContent = `จำนวนวัน: ${days.toLocaleString('th-TH')} วัน`;
       document.getElementById('totalPrice').textContent = `ราคาประเมิน: ฿${price.toLocaleString('th-TH')}`;
     }
 
+    document.getElementById('carId').addEventListener('change', calculateDaysAndPrice);
     document.getElementById('startDate').addEventListener('change', function () {
       const endEl = document.getElementById('endDate');
       if (this.value && !endEl.value) endEl.value = this.value;
@@ -953,51 +1010,74 @@
       }
     }
 
-    async function loadBookings() {
-      setManageMsg('⏳ กำลังโหลดข้อมูลจากชีต...', 'info');
+    async function fetchBookingsSilently() {
+      setManageMsg('กำลังเตรียมฐานข้อมูล...', 'info');
       try {
         const res = await fetch(`${API_URL}?action=listBookings`);
         const json = await res.json();
         if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
         bookingsCache = json.data || [];
         bookingsNeedsRefresh = false;
-        renderBookingsTable();
-        setManageMsg(`แสดง ${bookingsCache.length.toLocaleString('th-TH')} รายการล่าสุด`, 'success');
+        setManageMsg('เลือกเงื่อนไขแล้วกด "ค้นหาข้อมูล" เพื่อแสดงรายการ', 'info');
+        if (hasSearchedManage) renderFilteredBookings(false);
       } catch (err) {
-        setManageMsg('❌ ' + (err && err.message ? err.message : 'โหลดรายการไม่สำเร็จ'), 'error');
+        setManageMsg('❌ ' + (err && err.message ? err.message : 'โหลดข้อมูลไม่สำเร็จ'), 'error');
       }
     }
 
-    function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+    function hasAnyFilterSelected() {
+      const carFilter = document.getElementById('filterCar').value;
+      const paidFilter = document.getElementById('filterPaid').value;
+      const servicedFilter = document.getElementById('filterServiced').value;
+      const q = (document.getElementById('searchInput').value || '').trim();
+      return Boolean(carFilter || paidFilter || servicedFilter || q);
     }
 
-    function renderBookingsTable() {
-      const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+    async function renderFilteredBookings(allowEmptyFilter) {
+      if (bookingsNeedsRefresh) {
+        await fetchBookingsSilently();
+      }
+
+      if (!allowEmptyFilter && !hasAnyFilterSelected()) {
+        hasSearchedManage = false;
+        document.getElementById('resultsWrap').style.display = 'none';
+        setManageMsg('กรุณาเลือกชนิดรถ สถานะชำระเงิน สถานะให้บริการ หรือคำค้นหา แล้วกด "ค้นหาข้อมูล"', 'error');
+        return;
+      }
+
+      hasSearchedManage = true;
       const carFilter = document.getElementById('filterCar').value || '';
-      const tbody = document.getElementById('bookingsTableBody');
+      const paidFilter = document.getElementById('filterPaid').value || '';
+      const servicedFilter = document.getElementById('filterServiced').value || '';
+      const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
 
       const filtered = bookingsCache.filter(item => {
-        if (carFilter && item.carId !== carFilter) return false;
+        if (carFilter && item.carId !== carFilter && item.normalizedCar !== carFilter) return false;
+        if (paidFilter === 'paid' && !item.paid) return false;
+        if (paidFilter === 'unpaid' && item.paid) return false;
+        if (servicedFilter === 'serviced' && !item.serviced) return false;
+        if (servicedFilter === 'pending' && item.serviced) return false;
         if (!q) return true;
         return (
           (item.userName || '').toLowerCase().includes(q) ||
           (item.serviceLocation || '').toLowerCase().includes(q) ||
           (item.carId || '').toLowerCase().includes(q) ||
-          (item.startDate || '').toLowerCase().includes(q)
+          (item.telnumber || '').toLowerCase().includes(q)
         );
       });
 
+      const wrap = document.getElementById('resultsWrap');
+      const tbody = document.getElementById('bookingsTableBody');
+      wrap.style.display = 'block';
+
       if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px;">ไม่พบรายการที่ค้นหา</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px;">ไม่พบรายการที่ตรงกับเงื่อนไข</td></tr>';
+        setManageMsg('พบ 0 รายการ', 'info');
         return;
       }
 
-      tbody.innerHTML = filtered.slice(0, 80).map(item => `
+      setManageMsg(`พบ ${filtered.length.toLocaleString('th-TH')} รายการ`, 'success');
+      tbody.innerHTML = filtered.slice(0, 120).map(item => `
         <tr>
           <td>${item.rowNumber}</td>
           <td>${escapeHtml(item.startDate)}</td>
@@ -1015,9 +1095,30 @@
       `).join('');
     }
 
-    document.getElementById('searchInput').addEventListener('input', renderBookingsTable);
-    document.getElementById('filterCar').addEventListener('change', renderBookingsTable);
-    document.getElementById('reloadBookingsBtn').addEventListener('click', loadBookings);
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('runSearchBtn').addEventListener('click', () => renderFilteredBookings(false));
+    document.getElementById('showAllBtn').addEventListener('click', () => renderFilteredBookings(true));
+    document.getElementById('clearFilterBtn').addEventListener('click', () => {
+      document.getElementById('filterCar').value = '';
+      document.getElementById('filterPaid').value = '';
+      document.getElementById('filterServiced').value = '';
+      document.getElementById('searchInput').value = '';
+      hasSearchedManage = false;
+      document.getElementById('resultsWrap').style.display = 'none';
+      setManageMsg('เลือกเงื่อนไขแล้วกด "ค้นหาข้อมูล" เพื่อแสดงรายการ', 'info');
+    });
+    document.getElementById('reloadBookingsBtn').addEventListener('click', async () => {
+      bookingsNeedsRefresh = true;
+      await fetchBookingsSilently();
+      if (hasSearchedManage) await renderFilteredBookings(true);
+    });
 
     // โมดอล เพิ่ม / แก้ไข
     const modal = document.getElementById('recordModal');
@@ -1038,7 +1139,14 @@
       document.getElementById('modalMode').value = 'edit';
       document.getElementById('modalRowNumber').value = rowNumber;
       document.getElementById('modalTitle').textContent = `✏️ แก้ไขข้อมูลแถวที่ ${rowNumber}`;
-      document.getElementById('mCarId').value = item.carId;
+      const mSel = document.getElementById('mCarId');
+      if (!Array.from(mSel.options).some(o => o.value === item.carId) && item.carId) {
+        const extra = document.createElement('option');
+        extra.value = item.carId;
+        extra.textContent = item.carId;
+        mSel.appendChild(extra);
+      }
+      mSel.value = item.carId;
       document.getElementById('mLocation').value = item.serviceLocation;
       document.getElementById('mStartDate').value = item.startDate;
       document.getElementById('mEndDate').value = item.endDate || item.startDate;
@@ -1082,8 +1190,9 @@
         modal.classList.remove('open');
         setManageMsg(json.message, 'success');
         dashboardNeedsRefresh = true;
+        bookingsNeedsRefresh = true;
         refreshCalendarIframe();
-        await loadBookings();
+        await renderFilteredBookings(true);
       } catch (err) {
         alert('❌ ' + (err && err.message ? err.message : 'เกิดข้อผิดพลาด'));
       } finally {
@@ -1104,8 +1213,9 @@
         if (json.status !== 'success') throw new Error(json.message || 'ลบไม่สำเร็จ');
         setManageMsg(json.message, 'success');
         dashboardNeedsRefresh = true;
+        bookingsNeedsRefresh = true;
         refreshCalendarIframe();
-        await loadBookings();
+        await renderFilteredBookings(true);
       } catch (err) {
         setManageMsg('❌ ' + (err && err.message ? err.message : 'ลบไม่สำเร็จ'), 'error');
       }
