@@ -1,1 +1,708 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ระบบจองรถสุขาเคลื่อนที่เทศบาลนครเกาะสมุย</title>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
+    :root {
+      --bg-color: #f9f5f0;
+      --card-bg: #ffffff;
+      --primary: #5a3825;
+      --accent: #a67c52;
+      --accent-light: #d4af7f;
+      --text-dark: #333333;
+      --text-muted: #777777;
+    }
+
+    body {
+      font-family: 'Prompt', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-dark);
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 15px 10px;
+    }
+
+    header img {
+      max-height: 140px;
+      width: auto;
+    }
+
+    header h1 {
+      margin: 10px 0 0;
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    nav {
+      display: flex;
+      background-color: var(--accent);
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    nav button {
+      flex: 1;
+      padding: 14px;
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-family: 'Prompt', sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      min-width: 120px;
+      transition: background-color 0.2s ease;
+    }
+
+    nav button:hover {
+      background-color: rgba(255, 255, 255, 0.12);
+    }
+
+    nav button.active {
+      background-color: var(--accent-light);
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .tab {
+      display: none;
+      padding: 20px;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .container {
+      background-color: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      max-width: 700px;
+      margin: 12px auto;
+    }
+
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 12px auto;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-bottom: 6px;
+      font-weight: 600;
+      display: block;
+      color: var(--text-dark);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #cccccc;
+      font-family: 'Prompt', sans-serif;
+      font-size: 15px;
+      background-color: #ffffff;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button[type="submit"], .btn-refresh {
+      background-color: var(--primary);
+      color: #ffffff;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+    }
+
+    button[type="submit"]:hover:not(:disabled), .btn-refresh:hover {
+      background-color: #402b1e;
+    }
+
+    button[type="submit"]:disabled {
+      background-color: #9e8c82;
+      cursor: not-allowed;
+    }
+
+    .total-cost {
+      background-color: #e0f7fa;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-weight: 600;
+      text-align: center;
+      color: #007c91;
+      line-height: 1.6;
+    }
+
+    #status {
+      margin-top: 14px;
+      text-align: center;
+      font-weight: 500;
+      min-height: 24px;
+      white-space: pre-line;
+    }
+
+    .status-info { color: var(--primary); }
+    .status-success { color: #2e7d32; }
+    .status-error { color: #c62828; }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      text-align: center;
+      border-bottom: 4px solid var(--accent-light);
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .chart-container {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .chart-header {
+      font-size: 1.05rem;
+      color: var(--primary);
+      margin-bottom: 14px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 340px;
+    }
+
+    #dash-loading {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--primary);
+      padding: 40px 20px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 80vh;
+      border: none;
+      border-radius: 8px;
+      background-color: #ffffff;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px 10px;
+      font-size: 14px;
+      color: #555555;
+    }
+
+    @media (max-width: 768px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .chart-wrapper {
+        height: 250px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      nav button {
+        flex: 100%;
+      }
+      .container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Seal_of_Ko_Samui.png" alt="โลโก้เทศบาลนครเกาะสมุย">
+    <h1>ระบบจองรถสุขาเคลื่อนที่เทศบาลนครเกาะสมุย</h1>
+  </header>
+
+  <nav>
+    <button type="button" class="tab-button active" data-tab="booking">จองรถสุขาเคลื่อนที่</button>
+    <button type="button" class="tab-button" data-tab="calendar">ปฏิทินจอง</button>
+    <button type="button" class="tab-button" data-tab="stats">สถิติ</button>
+  </nav>
+
+  <div id="booking" class="tab active">
+    <div class="container">
+      <h2>📋 ฟอร์มจองรถสุขาเคลื่อนที่</h2>
+      <form id="bookingForm">
+        <label for="carId">ประเภทรถยนต์:</label>
+        <select id="carId" required>
+          <option value="">-- กรุณาเลือก --</option>
+        </select>
+
+        <label for="serviceLocation">สถานที่ใช้บริการ:</label>
+        <input type="text" id="serviceLocation" required>
+
+        <label for="startDate">วันที่เริ่มต้น:</label>
+        <input type="date" id="startDate" required>
+
+        <label for="endDate">วันที่สิ้นสุด:</label>
+        <input type="date" id="endDate" required>
+
+        <label for="userName">ชื่อผู้จอง:</label>
+        <input type="text" id="userName" required>
+
+        <label for="address">ที่อยู่ผู้จอง:</label>
+        <textarea id="address" rows="2" required></textarea>
+
+        <label for="telnumber">เบอร์โทรศัพท์:</label>
+        <input type="tel" id="telnumber" required>
+
+        <label for="note">หมายเหตุ (วัตถุประสงค์การใช้งาน):</label>
+        <textarea id="note" rows="2"></textarea>
+
+        <div class="total-cost">
+          <div id="totalDays">จำนวนวัน: 0 วัน</div>
+          <div id="totalPrice">ราคา: ฿0</div>
+        </div>
+
+        <button type="submit" id="submitBtn">📅 ยืนยันการจอง</button>
+      </form>
+      <div id="status" class="status-info"></div>
+    </div>
+  </div>
+
+  <div id="calendar" class="tab">
+    <iframe id="calendarFrame" data-src="https://calendar.google.com/calendar/u/0/embed?src=e1bf33357180813fb37e758c88a6bc44dcc7bccfd7d7ac34d2b830f0935cfe58@group.calendar.google.com&ctz=Asia/Bangkok"></iframe>
+  </div>
+
+  <div id="stats" class="tab">
+    <div class="dashboard-container">
+      <div class="toolbar">
+        <button type="button" class="btn-refresh" id="refreshDashBtn">🔄 รีเฟรชข้อมูลสถิติ</button>
+      </div>
+
+      <div id="dash-loading">⏳ กำลังประมวลผลข้อมูลสถิติ...</div>
+
+      <div id="dashboard-content" style="display: none;">
+        <div class="summary-grid">
+          <div class="card">
+            <div class="card-title">จำนวนการจองทั้งหมด</div>
+            <div class="card-value" id="val-total">0</div>
+          </div>
+          <div class="card">
+            <div class="card-title">ชำระเงินแล้ว</div>
+            <div class="card-value" id="val-paid" style="color: #2e7d32;">0</div>
+          </div>
+          <div class="card">
+            <div class="card-title">รอชำระเงิน</div>
+            <div class="card-value" id="val-unpaid" style="color: #d32f2f;">0</div>
+          </div>
+          <div class="card">
+            <div class="card-title">ให้บริการเสร็จสิ้น</div>
+            <div class="card-value" id="val-serviced" style="color: #0277bd;">0</div>
+          </div>
+          <div class="card">
+            <div class="card-title">ประมาณการรายได้ (บาท)</div>
+            <div class="card-value" id="val-revenue">0</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-container">
+            <div class="chart-header">📈 ปริมาณการจอง 12 เดือนล่าสุด</div>
+            <div class="chart-wrapper">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-header">🚐 สัดส่วนประเภทรถที่ถูกจอง</div>
+            <div class="chart-wrapper">
+              <canvas id="pieChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 ระบบจองรถสุขาเคลื่อนที่เทศบาลนครเกาะสมุย | โดย นายธีรศักดิ์ พูลเขาล้าน
+  </footer>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwepsD3Ab19pLMaFNeifc4XHqiqTFfW5GzSiQS_JTEXG42PVgrkmdwj_Y7a1lBN9IGT/exec";
+    const DAILY_RATE = 2500;
+    let dashboardNeedsRefresh = true;
+    let barChartInstance = null;
+    let pieChartInstance = null;
+
+    if (window.ChartDataLabels) {
+      Chart.register(ChartDataLabels);
+    }
+
+    function activateTab(tabName) {
+      document.querySelectorAll('.tab-button').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tabName);
+      });
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.toggle('active', tab.id === tabName);
+      });
+
+      if (tabName === 'calendar') {
+        const frame = document.getElementById('calendarFrame');
+        if (frame && !frame.src && frame.dataset.src) {
+          frame.src = frame.dataset.src;
+        }
+      } else if (tabName === 'stats') {
+        if (dashboardNeedsRefresh) {
+          loadDashboardStats();
+        }
+      }
+    }
+
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+    });
+
+    function parseLocalDate(dateStr) {
+      if (!dateStr) return null;
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return null;
+      const dt = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      return isNaN(dt.getTime()) ? null : dt;
+    }
+
+    function setStatus(message, type = 'info') {
+      const statusDiv = document.getElementById('status');
+      statusDiv.className = `status-${type}`;
+      statusDiv.textContent = message;
+    }
+
+    function resetCostSummary() {
+      document.getElementById('totalDays').textContent = 'จำนวนวัน: 0 วัน';
+      document.getElementById('totalPrice').textContent = 'ราคา: ฿0';
+    }
+
+    async function loadCarTypes() {
+      try {
+        const res = await fetch(`${API_URL}?action=getCarTypes`);
+        const json = await res.json();
+        if (json.status !== 'success') {
+          throw new Error(json.message || 'โหลดรายการรถไม่สำเร็จ');
+        }
+        const carIdSelect = document.getElementById('carId');
+        (json.data || []).forEach(type => {
+          const option = document.createElement('option');
+          option.value = type;
+          option.textContent = type;
+          carIdSelect.appendChild(option);
+        });
+      } catch (err) {
+        setStatus('ไม่สามารถโหลดรายการรถได้: ' + (err && err.message ? err.message : ''), 'error');
+      }
+    }
+
+    function calculateDaysAndPrice() {
+      const start = parseLocalDate(document.getElementById('startDate').value);
+      const end = parseLocalDate(document.getElementById('endDate').value);
+
+      if (!start || !end) {
+        resetCostSummary();
+        return;
+      }
+
+      if (end < start) {
+        document.getElementById('totalDays').textContent = 'จำนวนวัน: วันที่สิ้นสุดต้องไม่น้อยกว่าวันเริ่มต้น';
+        document.getElementById('totalPrice').textContent = 'ราคา: ฿0';
+        return;
+      }
+
+      const msPerDay = 1000 * 60 * 60 * 24;
+      const days = Math.round((end - start) / msPerDay) + 1;
+      const price = days * DAILY_RATE;
+
+      document.getElementById('totalDays').textContent = `จำนวนวัน: ${days.toLocaleString('th-TH')} วัน`;
+      document.getElementById('totalPrice').textContent = `ราคา: ฿${price.toLocaleString('th-TH')}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      loadCarTypes();
+
+      const startInput = document.getElementById('startDate');
+      const endInput = document.getElementById('endDate');
+      startInput.addEventListener('change', function () {
+        if (startInput.value && !endInput.value) {
+          endInput.value = startInput.value;
+        }
+        if (startInput.value) {
+          endInput.min = startInput.value;
+        }
+        calculateDaysAndPrice();
+      });
+      endInput.addEventListener('change', calculateDaysAndPrice);
+
+      document.getElementById('refreshDashBtn').addEventListener('click', loadDashboardStats);
+    });
+
+    document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const submitBtn = document.getElementById('submitBtn');
+
+      const start = parseLocalDate(form.startDate.value);
+      const end = parseLocalDate(form.endDate.value);
+      if (start && end && end < start) {
+        setStatus('❌ วันที่สิ้นสุดต้องไม่น้อยกว่าวันที่เริ่มต้น', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ กำลังบันทึกการจอง...';
+      setStatus('⏳ กำลังดำเนินการ...', 'info');
+
+      const payload = {
+        action: 'bookCar',
+        carId: form.carId.value,
+        serviceLocation: form.serviceLocation.value.trim(),
+        startDateStr: form.startDate.value,
+        endDateStr: form.endDate.value,
+        startTime: '',
+        endTime: '',
+        userName: form.userName.value.trim(),
+        address: form.address.value.trim(),
+        telnumber: form.telnumber.value.trim(),
+        note: form.note.value.trim() || 'ไม่มี'
+      };
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        if (result.status !== 'success') {
+          throw new Error(result.message || 'เกิดข้อผิดพลาดในการบันทึก');
+        }
+
+        setStatus(result.message || '✅ บันทึกการจองเรียบร้อยแล้ว', 'success');
+        form.reset();
+        document.getElementById('endDate').removeAttribute('min');
+        resetCostSummary();
+        dashboardNeedsRefresh = true;
+      } catch (error) {
+        const errMsg = error && error.message ? error.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ';
+        setStatus('❌ เกิดข้อผิดพลาด: ' + errMsg, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📅 ยืนยันการจอง';
+      }
+    });
+
+    async function loadDashboardStats() {
+      const loadingEl = document.getElementById('dash-loading');
+      const contentEl = document.getElementById('dashboard-content');
+      contentEl.style.display = 'none';
+      loadingEl.style.display = 'block';
+      loadingEl.className = 'status-info';
+      loadingEl.textContent = '⏳ กำลังประมวลผลข้อมูลสถิติ...';
+
+      try {
+        const response = await fetch(`${API_URL}?action=getDashboardStats`);
+        const res = await response.json();
+        renderDashboard(res);
+      } catch (err) {
+        showDashboardError((err && err.message) ? err.message : 'ไม่สามารถโหลดสถิติได้');
+      }
+    }
+
+    function renderDashboard(res) {
+      const loadingEl = document.getElementById('dash-loading');
+      const contentEl = document.getElementById('dashboard-content');
+
+      if (!res || res.status === 'error') {
+        showDashboardError((res && res.message) || 'เกิดข้อผิดพลาดในการดึงข้อมูล');
+        return;
+      }
+
+      if (res.status === 'empty') {
+        contentEl.style.display = 'none';
+        loadingEl.style.display = 'block';
+        loadingEl.className = 'status-info';
+        loadingEl.textContent = 'ไม่มีข้อมูลให้แสดงผล';
+        dashboardNeedsRefresh = false;
+        return;
+      }
+
+      loadingEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      dashboardNeedsRefresh = false;
+
+      const summary = res.summary || {};
+      document.getElementById('val-total').textContent = Number(summary.total || 0).toLocaleString('th-TH');
+      document.getElementById('val-paid').textContent = Number(summary.paid || 0).toLocaleString('th-TH');
+      document.getElementById('val-unpaid').textContent = Number(summary.unpaid || 0).toLocaleString('th-TH');
+      document.getElementById('val-serviced').textContent = Number(summary.serviced || 0).toLocaleString('th-TH');
+      document.getElementById('val-revenue').textContent = Number(summary.revenue || 0).toLocaleString('th-TH');
+
+      renderBarChart(res.monthly || []);
+      renderPieChart(res.carTypes || {});
+    }
+
+    function renderBarChart(monthlyList) {
+      const ctx = document.getElementById('barChart').getContext('2d');
+      if (barChartInstance) barChartInstance.destroy();
+
+      barChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: monthlyList.map(m => m.label),
+          datasets: [{
+            label: 'จำนวนการจอง',
+            data: monthlyList.map(m => Number(m.count) || 0),
+            backgroundColor: 'rgba(200, 161, 101, 0.85)',
+            borderColor: '#8d6e63',
+            borderWidth: 1,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { top: 24 } },
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              display: true,
+              anchor: 'end',
+              align: 'top',
+              color: '#333333',
+              font: { family: 'Prompt', weight: 'bold', size: 12 },
+              formatter: val => val > 0 ? val.toLocaleString('th-TH') : ''
+            }
+          },
+          scales: {
+            x: { ticks: { font: { family: 'Prompt' } } },
+            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0, font: { family: 'Prompt' } } }
+          }
+        }
+      });
+    }
+
+    function renderPieChart(carTypesObj) {
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      if (pieChartInstance) pieChartInstance.destroy();
+
+      const carLabels = Object.keys(carTypesObj);
+      const carData = Object.values(carTypesObj).map(v => Number(v) || 0);
+      const palette = ['#8d6e63', '#c8a165', '#d4af7f', '#5a3825', '#a67c52', '#6d4c41'];
+
+      pieChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: carLabels,
+          datasets: [{
+            data: carData,
+            backgroundColor: carLabels.map((_, idx) => palette[idx % palette.length]),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { family: 'Prompt', size: 11 } }
+            },
+            datalabels: {
+              display: true,
+              color: '#ffffff',
+              font: { family: 'Prompt', weight: 'bold', size: 12 },
+              formatter: (val, chartCtx) => {
+                const dataset = chartCtx.chart.data.datasets[chartCtx.datasetIndex].data || [];
+                const sum = dataset.reduce((acc, n) => acc + (Number(n) || 0), 0);
+                if (!sum || !val) return '';
+                const pct = Math.round((val * 100) / sum);
+                return pct > 0 ? `${pct}%` : '';
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function showDashboardError(msg) {
+      const loadingEl = document.getElementById('dash-loading');
+      const contentEl = document.getElementById('dashboard-content');
+      contentEl.style.display = 'none';
+      loadingEl.style.display = 'block';
+      loadingEl.className = 'status-error';
+      loadingEl.textContent = `❌ เกิดข้อผิดพลาด: ${msg}`;
+    }
+  </script>
+
+</body>
+</html>
