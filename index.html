@@ -365,6 +365,13 @@
       background: #f8fafc;
     }
 
+    .car-sub {
+      display: block;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
     .badge {
       display: inline-block;
       padding: 3px 9px;
@@ -618,6 +625,11 @@
               <label for="filterCar">ชนิดรถ:</label>
               <select id="filterCar">
                 <option value="">-- เลือกชนิดรถ --</option>
+                <option value="8ห้องพัดลม(จำหน่าย)">8ห้องพัดลม(จำหน่าย)</option>
+                <option value="8ห้องพัดลม">8ห้องพัดลม</option>
+                <option value="8ห้องแอร์">8ห้องแอร์</option>
+                <option value="6ห้องแอร์">6ห้องแอร์</option>
+                <option value="4ห้องแอร์">4ห้องแอร์</option>
               </select>
             </div>
             <div>
@@ -799,6 +811,27 @@
     };
     const FALLBACK_CARS = Object.keys(CAR_RATES);
 
+    const CAR_DISPLAY_MAP = {
+      "รถสุขาเคลื่อนที่8ห้อง(1)": "8ห้องพัดลม(จำหน่าย)",
+      "รถสุขาเคลื่อนที่8ห้อง(2)": "8ห้องพัดลม",
+      "รถสุขาเคลื่อนที่8ห้อง(3)": "8ห้องแอร์",
+      "รถสุขาเคลื่อนที่6ห้อง": "6ห้องแอร์",
+      "รถสุขาเคลื่อนที่4ห้อง": "4ห้องแอร์",
+      "รถสุขาเคลื่อนที่ 8 ห้อง (แอร์)": "8ห้องแอร์",
+      "รถสุขาเคลื่อนที่ 8 ห้อง (พัดลม)": "8ห้องพัดลม",
+      "รถสุขาเคลื่อนที่ 6 ห้อง (แอร์)": "6ห้องแอร์",
+      "รถสุขาเคลื่อนที่ 4 ห้อง (พัดลม)": "4ห้องแอร์"
+    };
+
+    function mapCarType(rawCar) {
+      const trimmed = String(rawCar || "").trim();
+      if (!trimmed) return "ไม่ระบุ";
+      if (CAR_DISPLAY_MAP[trimmed]) return CAR_DISPLAY_MAP[trimmed];
+      const compact = trimmed.replace(/\s+/g, "");
+      if (CAR_DISPLAY_MAP[compact]) return CAR_DISPLAY_MAP[compact];
+      return trimmed;
+    }
+
     let activeRates = { ...CAR_RATES };
     let bookingsCache = [];
     let hasSearchedManage = false;
@@ -871,11 +904,9 @@
     function populateCarSelects(cars) {
       const list = (cars && cars.length) ? cars : FALLBACK_CARS;
       const mainSel = document.getElementById('carId');
-      const filterSel = document.getElementById('filterCar');
       const modalSel = document.getElementById('mCarId');
 
       mainSel.innerHTML = '<option value="">-- กรุณาเลือกรถ --</option>';
-      filterSel.innerHTML = '<option value="">-- เลือกชนิดรถ --</option>';
       modalSel.innerHTML = '';
 
       list.forEach(c => {
@@ -884,11 +915,6 @@
         opt1.value = c;
         opt1.textContent = `${c} (฿${rate.toLocaleString('th-TH')}/วัน)`;
         mainSel.appendChild(opt1);
-
-        const opt2 = document.createElement('option');
-        opt2.value = c;
-        opt2.textContent = c;
-        filterSel.appendChild(opt2);
 
         const opt3 = document.createElement('option');
         opt3.value = c;
@@ -1016,7 +1042,10 @@
         const res = await fetch(`${API_URL}?action=listBookings`);
         const json = await res.json();
         if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
-        bookingsCache = json.data || [];
+        bookingsCache = (json.data || []).map(item => ({
+          ...item,
+          mappedCar: mapCarType(item.normalizedCar || item.carId)
+        }));
         bookingsNeedsRefresh = false;
         setManageMsg('เลือกเงื่อนไขแล้วกด "ค้นหาข้อมูล" เพื่อแสดงรายการ', 'info');
         if (hasSearchedManage) renderFilteredBookings(false);
@@ -1052,7 +1081,8 @@
       const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
 
       const filtered = bookingsCache.filter(item => {
-        if (carFilter && item.carId !== carFilter && item.normalizedCar !== carFilter) return false;
+        const mapped = item.mappedCar || mapCarType(item.carId);
+        if (carFilter && mapped !== carFilter && item.carId !== carFilter) return false;
         if (paidFilter === 'paid' && !item.paid) return false;
         if (paidFilter === 'unpaid' && item.paid) return false;
         if (servicedFilter === 'serviced' && !item.serviced) return false;
@@ -1062,6 +1092,7 @@
           (item.userName || '').toLowerCase().includes(q) ||
           (item.serviceLocation || '').toLowerCase().includes(q) ||
           (item.carId || '').toLowerCase().includes(q) ||
+          mapped.toLowerCase().includes(q) ||
           (item.telnumber || '').toLowerCase().includes(q)
         );
       });
@@ -1077,22 +1108,29 @@
       }
 
       setManageMsg(`พบ ${filtered.length.toLocaleString('th-TH')} รายการ`, 'success');
-      tbody.innerHTML = filtered.slice(0, 120).map(item => `
-        <tr>
-          <td>${item.rowNumber}</td>
-          <td>${escapeHtml(item.startDate)}</td>
-          <td>${escapeHtml(item.carId)}</td>
-          <td>${escapeHtml(item.serviceLocation)}</td>
-          <td>${escapeHtml(item.userName)}</td>
-          <td>${escapeHtml(item.telnumber)}</td>
-          <td><span class="badge ${item.paid ? 'badge-ok' : 'badge-warn'}">${item.paid ? 'ชำระแล้ว' : 'รอชำระ'}</span></td>
-          <td><span class="badge ${item.serviced ? 'badge-ok' : 'badge-warn'}">${item.serviced ? 'เสร็จสิ้น' : 'รอดำเนินการ'}</span></td>
-          <td style="white-space:nowrap;">
-            <button type="button" class="btn-sm btn-edit" onclick="openEditModal(${item.rowNumber})">✏️ แก้ไข</button>
-            <button type="button" class="btn-sm btn-delete" onclick="handleDeleteBooking(${item.rowNumber})">🗑️ ลบ</button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = filtered.slice(0, 120).map(item => {
+        const mapped = item.mappedCar || mapCarType(item.carId);
+        const showRawSub = item.carId && mapped !== item.carId;
+        return `
+          <tr>
+            <td>${item.rowNumber}</td>
+            <td>${escapeHtml(item.startDate)}</td>
+            <td>
+              <strong>${escapeHtml(mapped)}</strong>
+              ${showRawSub ? `<span class="car-sub">เดิม: ${escapeHtml(item.carId)}</span>` : ''}
+            </td>
+            <td>${escapeHtml(item.serviceLocation)}</td>
+            <td>${escapeHtml(item.userName)}</td>
+            <td>${escapeHtml(item.telnumber)}</td>
+            <td><span class="badge ${item.paid ? 'badge-ok' : 'badge-warn'}">${item.paid ? 'ชำระแล้ว' : 'รอชำระ'}</span></td>
+            <td><span class="badge ${item.serviced ? 'badge-ok' : 'badge-warn'}">${item.serviced ? 'เสร็จสิ้น' : 'รอดำเนินการ'}</span></td>
+            <td style="white-space:nowrap;">
+              <button type="button" class="btn-sm btn-edit" onclick="openEditModal(${item.rowNumber})">✏️ แก้ไข</button>
+              <button type="button" class="btn-sm btn-delete" onclick="handleDeleteBooking(${item.rowNumber})">🗑️ ลบ</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function escapeHtml(str) {
@@ -1120,7 +1158,6 @@
       if (hasSearchedManage) await renderFilteredBookings(true);
     });
 
-    // โมดอล เพิ่ม / แก้ไข
     const modal = document.getElementById('recordModal');
     document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('open'));
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
@@ -1221,7 +1258,6 @@
       }
     };
 
-    // แดชบอร์ดสถิติ
     document.getElementById('refreshDashBtn').addEventListener('click', loadDashboardStats);
 
     async function loadDashboardStats() {
